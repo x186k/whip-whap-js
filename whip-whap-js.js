@@ -1,11 +1,19 @@
 
+
+export { restartIceIfNeeded }
+export { negotiate }
+export { sendSignalling }
+export { waitToCompleteIceGathering }
+export { getRxTxRate }
+
+
 /**
  * @param {Event} ev 
  * @param {string} url
  * 
  *     https://blog.mozilla.org/webrtc/perfect-negotiation-in-webrtc/
  */
- async function negotiate(ev, url) {
+async function negotiate(ev, url) {
     let pc = /** @type {RTCPeerConnection} */ (ev.target)
 
     console.debug('>onnegotiationneeded')
