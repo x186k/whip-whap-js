@@ -1,10 +1,18 @@
 
+/**
+ * WHIP WHAP module.
+ * @module whip-whap-js
+ */
 
-export { restartIceIfNeeded }
-export { negotiate }
-export { sendSignalling }
-export { waitToCompleteIceGathering }
-export { getRxTxRate }
+
+export { handleIceStateChange }
+export { handleNegotiationNeeded }
+export { helperGetRxTxRate }
+
+
+// do not export for now
+// export { sendSignalling }
+// export { waitToCompleteIceGathering }
 
 
 /**
@@ -13,7 +21,21 @@ export { getRxTxRate }
  * 
  *     https://blog.mozilla.org/webrtc/perfect-negotiation-in-webrtc/
  */
-async function negotiate(ev, url) {
+/**
+ * Event handler for 'negotiationneeded' event.
+ * 
+ * @function handleNegotiationNeeded
+ * @param {Event} event 
+ * @param {string} url 
+ * 
+ * @example WHIP example
+ * // pc.onnegotiationneeded = ev => whipwhap.handleNegotiationNeeded(ev, '/pub')
+ * 
+ * @example WHAP example
+ * // pc.onnegotiationneeded = ev => whipwhap.handleNegotiationNeeded(ev, '/sub')
+ */
+
+async function handleNegotiationNeeded(ev, url) {
     let pc = /** @type {RTCPeerConnection} */ (ev.target)
 
     console.debug('>onnegotiationneeded')
@@ -38,9 +60,15 @@ async function negotiate(ev, url) {
 }
 
 /**
+ * Event handler for 'iceconnectionstatechange' event.
+ * 
+ * @function handleIceStateChange
  * @param {Event} event 
+ * 
+ * @example
+ * // pc.addEventListener('iceconnectionstatechange', whipwhap.handleIceStateChange)
  */
-function restartIceIfNeeded(event) {
+function handleIceStateChange(event) {
     let pc = /** @type {RTCPeerConnection} */ (event.target)
 
     if (pc.iceConnectionState === "disconnected") {   //'failed' is also an option
@@ -50,6 +78,9 @@ function restartIceIfNeeded(event) {
 }
 
 /**
+ * @ignore
+ * Will send offer sdp using Fetch and
+ * get answer sdp and return it.
  * @param {RTCSessionDescription} desc The session description.
  * @param {string} url Where to do WHIP or WHAP
  * @returns {Promise<string>}
@@ -74,6 +105,10 @@ async function sendSignalling(url, desc) {
 }
 
 /**
+ * @ignore
+ * Wait until ICE is complete, or 250ms has elapsed,
+ * which ever comes first.
+ * 
  * @param {RTCPeerConnection} pc
  * @param {boolean} logPerformance
  */
@@ -95,9 +130,14 @@ async function waitToCompleteIceGathering(pc, logPerformance) {
 }
 
 /**
+ * This is a helper function, which is not required
+ * to make WHIP or WHAP connections.
+ * It will return the current rx/tx bitrates
+ * the next time a getStats() event is available.
+ * 
  * @param {RTCPeerConnection} pc
  */
-async function getRxTxRate(pc) {
+async function helperGetRxTxRate(pc) {
     let rxrate = 0
     let txrate = 0
     try {
