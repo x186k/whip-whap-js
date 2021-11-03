@@ -95,7 +95,7 @@ async function sendSignalling(url, desc) {
     }
     let resp = await fetch(url, fetchopt)
     let resptext = await resp.text()
-    if (resp.status != 202) {
+    if (resp.status != 201) {
         throw `SFU error: ${resptext} ${resp.status}`
         // pc.close()
         // return
