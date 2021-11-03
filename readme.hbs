@@ -12,7 +12,7 @@
 ## WHIP
 WHIP stands for WebRTC-HTTP ingestion protocol
 It's an IETF draft, and you can learn more here:
-https://www.ietf.org/id/draft-ietf-wish-whip-01.html
+https://github.com/wish-wg/webrtc-http-ingest-protocol
 
 ## WHAP
 WHIP stands for WebRTC-HTTP access protocol
