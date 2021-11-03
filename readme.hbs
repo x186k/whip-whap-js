@@ -27,11 +27,12 @@ See the example below.
 WHIP example: send camera to WHIP server.
 ```js
 
-let whipwhap = await import('./whip-whap-js/whip-whap-js.js')
+let url = '/pub'
+let whipwhap = await import('https://cdn.jsdelivr.net/npm/whip-whap-js')
 document.write('<video id="video1" autoplay controls muted width="1024" allowfullscreen/>')
 let pc = new RTCPeerConnection({ iceServers: [{ urls: 'stun:stun.l.google.com:19302' }] })
 pc.addEventListener('iceconnectionstatechange', whipwhap.handleIceStateChange)
-pc.addEventListener('negotiationneeded', ev => whipwhap.handleNegotiationNeeded(ev, '/pub'))
+pc.addEventListener('negotiationneeded', ev => whipwhap.handleNegotiationNeeded(ev, url))
 let gum = await navigator.mediaDevices.getUserMedia({ audio: true, video: true })
 pc.addTransceiver(gum.getVideoTracks()[0], { 'direction': 'sendonly' })
 pc.addTransceiver(gum.getAudioTracks()[0], { 'direction': 'sendonly' })
@@ -44,13 +45,14 @@ video1.play()
 WHAP example: receive video/audio from WebRTC server to HTML video element. 
 ```js
 
-let whipwhap = await import('./whip-whap-js/whip-whap-js.js')
+let url = '/sub'
+let whipwhap = await import('https://cdn.jsdelivr.net/npm/whip-whap-js')
 document.write('<video id="video1" autoplay controls muted width="1024" allowfullscreen/>')
 let pc = new RTCPeerConnection({ iceServers: [{ urls: 'stun:stun.l.google.com:19302' }] })
 pc.addTransceiver('video', { 'direction': 'recvonly' }) // build sdp
 pc.addTransceiver('audio', { 'direction': 'recvonly' }) // build sdp
 pc.addEventListener('iceconnectionstatechange', whipwhap.handleIceStateChange)
-pc.addEventListener('negotiationneeded', ev => whipwhap.handleNegotiationNeeded(ev, '/sub'))
+pc.addEventListener('negotiationneeded', ev => whipwhap.handleNegotiationNeeded(ev, url))
 let video1 = document.getElementById('video1')
 pc.ontrack = ev => video1.srcObject = ev.streams[0]
 
