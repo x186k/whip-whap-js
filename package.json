@@ -1,0 +1,24 @@
+{
+  "name": "whip-whap-js",
+  "version": "1.0.0",
+  "description": "Small, simple JS library for initiating WHIP and WHAP WebRTC sessions",
+  "main": "whip-whap-js.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/x186k/whip-whap-js.git"
+  },
+  "keywords": [
+    "webrtc",
+    "whip",
+    "whap"
+  ],
+  "author": "Cameron Elliott",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/x186k/whip-whap-js/issues"
+  },
+  "homepage": "https://github.com/x186k/whip-whap-js#readme"
+}
