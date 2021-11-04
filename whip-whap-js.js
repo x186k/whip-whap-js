@@ -27,6 +27,7 @@ export { helperGetRxTxRate }
  * @function handleNegotiationNeeded
  * @param {Event} event 
  * @param {string} url 
+ * @param {string} bearerToken 
  * 
  * @example WHIP example
  * // pc.onnegotiationneeded = ev => whipwhap.handleNegotiationNeeded(ev, '/pub')
@@ -35,7 +36,7 @@ export { helperGetRxTxRate }
  * // pc.onnegotiationneeded = ev => whipwhap.handleNegotiationNeeded(ev, '/sub')
  */
 
-async function handleNegotiationNeeded(ev, url) {
+async function handleNegotiationNeeded(ev, url, bearerToken) {
     let pc = /** @type {RTCPeerConnection} */ (ev.target)
 
     console.debug('>onnegotiationneeded')
@@ -43,7 +44,6 @@ async function handleNegotiationNeeded(ev, url) {
     const offer = await pc.createOffer()
     await pc.setLocalDescription(offer)
     let ofr = await waitToCompleteIceGathering(pc, true)
-
 
     const t0 = performance.now()
 
@@ -53,6 +53,9 @@ async function handleNegotiationNeeded(ev, url) {
         let opt = {}
         opt.method = 'POST'
         opt.headers = { 'Content-Type': 'application/sdp' }
+        if (typeof bearerToken === 'string') { // may be null or undefined
+            opt.headers.Authorization = `Bearer ${bearerToken}`
+        }        
         opt.body = ofr.sdp
         let resp = { status:-1}
         try { // without try/catch, a thrown except from fetch exits our 'thread'
