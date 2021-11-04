@@ -44,18 +44,38 @@ async function handleNegotiationNeeded(ev, url) {
     await pc.setLocalDescription(offer)
     let ofr = await waitToCompleteIceGathering(pc, true)
 
-    let ntry = 0
-    let ans = ''
-    while (ans === '') {
-        try {
-            ans = await sendSignalling(url, ofr)
-            await pc.setRemoteDescription(new RTCSessionDescription({ type: 'answer', sdp: ans }))
-        } catch {
-            ntry = ntry + 1
-            const event = new CustomEvent('retry-counter', { detail: ntry })
-            pc.dispatchEvent(event)
-            await (new Promise(r => setTimeout(r, 2000)))
+
+    const t0 = performance.now()
+
+    while (true) {
+        console.debug('sending N line offer:', ofr.sdp.split(/\r\n|\r|\n/).length)
+
+        let opt = {}
+        opt.method = 'POST'
+        opt.headers = { 'Content-Type': 'application/sdp' }
+        opt.body = ofr.sdp
+        let resp = { status:-1}
+        try { // without try/catch, a thrown except from fetch exits our 'thread'
+            resp = await fetch(url, opt)
+        } catch (error) {
+            ;  // not needed console.log(error)
         }
+      
+
+
+        if (resp.status == 201) {
+            let anssdp = await resp.text()
+            console.debug('got N line answer:', anssdp.split(/\r\n|\r|\n/).length)
+            await pc.setRemoteDescription(new RTCSessionDescription({ type: 'answer', sdp: anssdp }))
+            return
+        }
+
+        let numsec = (performance.now() - t0) / 1000
+        let xdetail = { status: resp.status, numsec: numsec }
+        const event = new CustomEvent('downtime-msg', { detail: xdetail })
+        pc.dispatchEvent(event)
+        await (new Promise(r => setTimeout(r, 2000)))
+
     }
 }
 
@@ -77,32 +97,11 @@ function handleIceStateChange(event) {
     }
 }
 
-/**
- * @ignore
- * Will send offer sdp using Fetch and
- * get answer sdp and return it.
- * @param {RTCSessionDescription} desc The session description.
- * @param {string} url Where to do WHIP or WHAP
- * @returns {Promise<string>}
- */
-async function sendSignalling(url, desc) {
-    console.debug('sending N line offer:', desc.sdp.split(/\r\n|\r|\n/).length)
-    let fetchopt =
-    {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/sdp', },
-        body: desc.sdp
-    }
-    let resp = await fetch(url, fetchopt)
-    let resptext = await resp.text()
-    if (resp.status != 201) {
-        throw `SFU error: ${resptext} ${resp.status}`
-        // pc.close()
-        // return
-    }
-    console.debug('got N line answer:', resptext.split(/\r\n|\r|\n/).length)
-    return resptext
-}
+
+
+
+
+
 
 /**
  * @ignore
@@ -111,6 +110,7 @@ async function sendSignalling(url, desc) {
  * 
  * @param {RTCPeerConnection} pc
  * @param {boolean} logPerformance
+ * @return {Promise<RTCSessionDescription>}
  */
 async function waitToCompleteIceGathering(pc, logPerformance) {
     const t0 = performance.now()
