@@ -55,15 +55,15 @@ async function handleNegotiationNeeded(ev, url, bearerToken) {
         opt.headers = { 'Content-Type': 'application/sdp' }
         if (typeof bearerToken === 'string') { // may be null or undefined
             opt.headers.Authorization = `Bearer ${bearerToken}`
-        }        
+        }
         opt.body = ofr.sdp
-        let resp = { status:-1}
+        let resp = { status: -1 }
         try { // without try/catch, a thrown except from fetch exits our 'thread'
             resp = await fetch(url, opt)
         } catch (error) {
             ;  // not needed console.log(error)
         }
-      
+
 
 
         if (resp.status == 201) {
@@ -94,7 +94,17 @@ async function handleNegotiationNeeded(ev, url, bearerToken) {
 function handleIceStateChange(event) {
     let pc = /** @type {RTCPeerConnection} */ (event.target)
 
-    if (pc.iceConnectionState === "disconnected") {   //'failed' is also an option
+    // 12 10 21
+    // I am not really sure of the ideal iceConnectionStates to trigger
+    // an ice restart.
+    // Prior to 12/10/21 I had ''
+    // The MDN perfect negotiation example uses 'failed'
+    // as of 12/10/21, I am changing from disconnected to failed as per the MDN
+    // perfect negotation example:
+    // states definitions: 
+    // https://developer.mozilla.org/en-US/docs/Web/API/RTCPeerConnection/iceConnectionState#value
+
+    if (pc.iceConnectionState === "failed") {   //'failed' is also an option
         console.debug('*** restarting ice')
         pc.restartIce()
     }
