@@ -1,6 +1,6 @@
 {
   "name": "whip-whap-js",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Small, simple JS library for initiating WHIP and WHAP WebRTC sessions",
   "main": "whip-whap-js.js",
   "scripts": {
