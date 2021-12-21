@@ -94,6 +94,8 @@ async function handleNegotiationNeeded(ev, url, bearerToken) {
 function handleIceStateChange(event) {
     let pc = /** @type {RTCPeerConnection} */ (event.target)
 
+    console.debug('>iceconnectionstatechange', pc.iceConnectionState)
+
     // 12 10 21
     // I am not really sure of the ideal iceConnectionStates to trigger
     // an ice restart.
@@ -104,7 +106,9 @@ function handleIceStateChange(event) {
     // states definitions: 
     // https://developer.mozilla.org/en-US/docs/Web/API/RTCPeerConnection/iceConnectionState#value
 
-    if (pc.iceConnectionState === "failed") {   //'failed' is also an option
+    if (pc.iceConnectionState === "failed" ||
+        pc.iceConnectionState === "disconnected" ||
+        pc.iceConnectionState === "closed") {   //'failed' is also an option
         console.debug('*** restarting ice')
         pc.restartIce()
     }
