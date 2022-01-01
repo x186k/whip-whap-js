@@ -157,6 +157,8 @@ async function waitToCompleteIceGathering(pc, logPerformance) {
 async function helperGetRxTxRate(pc) {
     let rxrate = 0
     let txrate = 0
+    let qualityLimitation = false
+
     try {
 
         //@ts-ignore
@@ -167,7 +169,6 @@ async function helperGetRxTxRate(pc) {
         //@ts-ignore
         pc.ratemap = ratemap
 
-
         const results = await pc.getStats(null)
 
         //console.debug_(JSON.stringify(Object.fromEntries(await pc.getStats(null))))
@@ -176,13 +177,13 @@ async function helperGetRxTxRate(pc) {
             const now = report.timestamp
 
 
+
             let xtraDebug = false
             if (xtraDebug) {
                 if (report.type === 'inbound-rtp' && report.kind === 'video') {
                     console.debug('frames: Nrx', report.framesReceived, 'Ndecode', report.framesDecoded, 'Nrx-Ndecode', report.framesReceived - report.framesDecoded)
                 }
             }
-
 
             //debugging notes
             // if (typeof report.bytesReceived !== 'undefined') {
@@ -201,6 +202,11 @@ async function helperGetRxTxRate(pc) {
                     const timestampPrev = ratemap.get(report.ssrc).timestampPrev
                     const bitrate = 8 * (bytes - bytesPrev) / (now - timestampPrev)
                     txrate += bitrate
+
+                    if (report.qualityLimitationReason && report.qualityLimitationReason != 'none') {
+                        qualityLimitation = true
+                    }
+
                     //console.debug('tx speed', report.ssrc, report.type, report.mediaType, bitrate)
                 }
                 ratemap.set(report.ssrc, { bytesPrev: bytes, timestampPrev: now })
@@ -227,7 +233,8 @@ async function helperGetRxTxRate(pc) {
 
     return {
         rxrate,
-        txrate
+        txrate,
+        qualityLimitation
     }
 }
 
