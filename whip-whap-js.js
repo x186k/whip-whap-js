@@ -27,7 +27,7 @@ export { helperGetRxTxRate }
  * @function handleNegotiationNeeded
  * @param {Event} event 
  * @param {string} url 
- * @param {string} bearerToken 
+ * @param {Headers} headers might contain 'Authorization' or 'X-deadsfu-subuuid' 
  * 
  * @example WHIP example
  * // pc.onnegotiationneeded = ev => whipwhap.handleNegotiationNeeded(ev, '/pub')
@@ -36,7 +36,7 @@ export { helperGetRxTxRate }
  * // pc.onnegotiationneeded = ev => whipwhap.handleNegotiationNeeded(ev, '/sub')
  */
 
-async function handleNegotiationNeeded(ev, url, bearerToken) {
+async function handleNegotiationNeeded(ev, url, headers) {
     let pc = /** @type {RTCPeerConnection} */ (ev.target)
 
     console.debug('>onnegotiationneeded')
@@ -47,15 +47,25 @@ async function handleNegotiationNeeded(ev, url, bearerToken) {
 
     const t0 = performance.now()
 
+    if (typeof headers !== 'object') { // is there a better way?
+        headers = new Headers()
+    }
+    if (typeof subuuid === 'string' && subuuid.length == 36) {
+        headers.set('X-deadsfu-subuuid', subuuid) //sfu also accepts param &subuuid=..., but this is more secure
+    }
+    if (typeof bearerToken === 'string' ) {
+        headers.set('Authorization', `Bearer ${bearerToken}`)
+    }
+   
+
+
     while (true) {
         console.debug('sending N line offer:', ofr.sdp.split(/\r\n|\r|\n/).length)
 
         let opt = {}
         opt.method = 'POST'
-        opt.headers = { 'Content-Type': 'application/sdp' }
-        if (typeof bearerToken === 'string') { // may be null or undefined
-            opt.headers.Authorization = `Bearer ${bearerToken}`
-        }
+        headers.set('Content-Type', 'application/sdp')
+        opt.headers = headers
         opt.body = ofr.sdp
         let resp = { status: -1 }
         try { // without try/catch, a thrown except from fetch exits our 'thread'
