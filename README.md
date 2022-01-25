@@ -27,7 +27,7 @@ See the example below.
 WHIP example: send camera to WHIP server.
 ```js
 
-let url = '/pub'
+let url = '/whip'
 let whipwhap = await import('https://cdn.jsdelivr.net/npm/whip-whap-js')
 document.write('<video id="video1" autoplay controls muted width="1024" allowfullscreen/>')
 let pc = new RTCPeerConnection({ iceServers: [{ urls: 'stun:stun.l.google.com:19302' }] })
@@ -47,7 +47,7 @@ video1.play()
 WHAP example: receive video/audio from WebRTC server to HTML video element. 
 ```js
 
-let url = '/sub'
+let url = '/whap'
 let whipwhap = await import('https://cdn.jsdelivr.net/npm/whip-whap-js')
 document.write('<video id="video1" autoplay controls muted width="1024" allowfullscreen/>')
 let pc = new RTCPeerConnection({ iceServers: [{ urls: 'stun:stun.l.google.com:19302' }] })
@@ -85,16 +85,7 @@ Event handler for 'negotiationneeded' event.
 | event | <code>Event</code> | 
 | url | <code>string</code> | 
 
-**Example**  
-```js
-WHIP example
-// pc.onnegotiationneeded = ev => whipwhap.handleNegotiationNeeded(ev, '/pub')
-```
-**Example**  
-```js
-WHAP example
-// pc.onnegotiationneeded = ev => whipwhap.handleNegotiationNeeded(ev, '/sub')
-```
+
 <a name="module_whip-whap-js..handleIceStateChange"></a>
 
 ### whip-whap-js~handleIceStateChange(event)
