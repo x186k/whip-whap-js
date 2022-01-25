@@ -97,10 +97,7 @@ Event handler for 'iceconnectionstatechange' event.
 | --- | --- |
 | event | <code>Event</code> | 
 
-**Example**  
-```js
-// pc.addEventListener('iceconnectionstatechange', whipwhap.handleIceStateChange)
-```
+
 <a name="module_whip-whap-js..helperGetRxTxRate"></a>
 
 ### whip-whap-js~helperGetRxTxRate(pc)
