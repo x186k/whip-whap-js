@@ -50,14 +50,6 @@ async function handleNegotiationNeeded(ev, url, headers) {
     if (typeof headers !== 'object') { // is there a better way?
         headers = new Headers()
     }
-    if (typeof subuuid === 'string' && subuuid.length == 36) {
-        headers.set('X-deadsfu-subuuid', subuuid) //sfu also accepts param &subuuid=..., but this is more secure
-    }
-    if (typeof bearerToken === 'string' ) {
-        headers.set('Authorization', `Bearer ${bearerToken}`)
-    }
-   
-
 
     while (true) {
         console.debug('sending N line offer:', ofr.sdp.split(/\r\n|\r|\n/).length)
@@ -76,7 +68,7 @@ async function handleNegotiationNeeded(ev, url, headers) {
 
 
 
-        if (resp.status == 201) {
+        if (resp.status === 201) {
             let anssdp = await resp.text()
             console.debug('got N line answer:', anssdp.split(/\r\n|\r|\n/).length)
             await pc.setRemoteDescription(new RTCSessionDescription({ type: 'answer', sdp: anssdp }))
@@ -213,7 +205,7 @@ async function helperGetRxTxRate(pc) {
                     const bitrate = 8 * (bytes - bytesPrev) / (now - timestampPrev)
                     txrate += bitrate
 
-                    if (report.qualityLimitationReason && report.qualityLimitationReason != 'none') {
+                    if (report.qualityLimitationReason && report.qualityLimitationReason !== 'none') {
                         qualityLimitation = true
                     }
 
