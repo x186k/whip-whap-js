@@ -233,6 +233,9 @@ async function helperGetRxTxRate(pc) {
     rxrate = Math.floor(rxrate)
     txrate = Math.floor(txrate)
 
+    rxrate = rxrate >= 0 ? rxrate : 0
+    txrate = txrate >= 0 ? txrate : 0
+
     return {
         rxrate,
         txrate,
