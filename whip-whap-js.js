@@ -28,6 +28,7 @@ export { helperGetRxTxRate }
  * @param {Event} event 
  * @param {string} url 
  * @param {Headers} headers might contain 'Authorization' or 'X-deadsfu-subuuid' 
+ * @returns {string} Location header as string or undefined of not found or disabled by CORS
  * 
  * @example WHIP example
  * // pc.onnegotiationneeded = ev => whipwhap.handleNegotiationNeeded(ev, '/pub')
@@ -72,7 +73,7 @@ async function handleNegotiationNeeded(ev, url, headers) {
             let anssdp = await resp.text()
             console.debug('got N line answer:', anssdp.split(/\r\n|\r|\n/).length)
             await pc.setRemoteDescription(new RTCSessionDescription({ type: 'answer', sdp: anssdp }))
-            return
+            return resp.headers.get('Location')
         }
 
         let numsec = (performance.now() - t0) / 1000
@@ -241,5 +242,5 @@ async function helperGetRxTxRate(pc) {
         txrate,
         qualityLimitation
     }
-}
 
+}

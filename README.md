@@ -63,6 +63,26 @@ pc.ontrack = ev => video1.srcObject = ev.streams[0]
 
 ```
 
+## Location Header
+
+Server should return a `Location` header on success, it could be used on `DELETE`
+
+```js
+
+let location = null
+
+pc.addEventListener('negotiationneeded', async ev => {
+    location = await whipwhap.handleNegotiationNeeded(ev, url))
+}
+
+// to stop
+if (locatioin) {
+    fetch(location, {method: 'DELETE'})
+}
+
+```
+
+When used in [CORS](https://developer.mozilla.org/en-US/docs/Web/HTTP/CORS), `Access-Control-Expose-Headers: Location` header is needed.
 
 ## Functions
 <a name="module_whip-whap-js"></a>
@@ -114,4 +134,3 @@ the next time a getStats() event is available.
 | Param | Type |
 | --- | --- |
 | pc | <code>RTCPeerConnection</code> | 
-
