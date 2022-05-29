@@ -80,6 +80,10 @@ async function handleNegotiationNeeded(ev, url, headers) {
         let xdetail = { status: resp.status, numsec: numsec }
         const event = new CustomEvent('downtime-msg', { detail: xdetail })
         pc.dispatchEvent(event)
+        // we could use the JS method setTimeout()
+        // but it would mean we may need to re-factor these methods into a class
+        // in order to cancel the Timeout directly.
+        // although, we could stop calling setTimeout() on pc.state==='closed'
         await (new Promise(r => setTimeout(r, 2000)))
 
     }
@@ -147,100 +151,4 @@ async function waitToCompleteIceGathering(pc, logPerformance) {
         console.debug('ice gather blocked for N ms:', Math.ceil(performance.now() - t0))
     }
     return p
-}
-
-/**
- * This is a helper function, which is not required
- * to make WHIP or WHAP connections.
- * It will return the current rx/tx bitrates
- * the next time a getStats() event is available.
- * 
- * @param {RTCPeerConnection} pc
- */
-async function helperGetRxTxRate(pc) {
-    let rxrate = 0
-    let txrate = 0
-    let qualityLimitation = false
-
-    try {
-
-        //@ts-ignore
-        let ratemap = pc.ratemap
-        if (typeof ratemap === 'undefined') {
-            ratemap = new Map()
-        }
-        //@ts-ignore
-        pc.ratemap = ratemap
-
-        const results = await pc.getStats(null)
-
-        //console.debug_(JSON.stringify(Object.fromEntries(await pc.getStats(null))))
-
-        results.forEach(report => {
-            const now = report.timestamp
-
-
-
-            let xtraDebug = false
-            if (xtraDebug) {
-                if (report.type === 'inbound-rtp' && report.kind === 'video') {
-                    console.debug('frames: Nrx', report.framesReceived, 'Ndecode', report.framesDecoded, 'Nrx-Ndecode', report.framesReceived - report.framesDecoded)
-                }
-            }
-
-            //debugging notes
-            // if (typeof report.bytesReceived !== 'undefined') {
-            //     console.debug(report.type, report.mediaType, report.bytesReceived)
-            // }
-            // if (typeof report.bytesTransmitted !== 'undefined') {
-            //     console.debug(report.type, report.mediaType, report.bytesTransmitted)
-            // }
-
-            // NO!: if (report.type === 'outbound-rtp' && report.kind === 'video') {
-            // we don't constrain rx/tx rate to just video, we include audio also
-            if (report.type === 'outbound-rtp') {
-                const bytes = report.bytesSent
-                if (ratemap.has(report.ssrc)) { //report.id may also be a good key
-                    const bytesPrev = ratemap.get(report.ssrc).bytesPrev
-                    const timestampPrev = ratemap.get(report.ssrc).timestampPrev
-                    const bitrate = 8 * (bytes - bytesPrev) / (now - timestampPrev)
-                    txrate += bitrate
-
-                    if (report.qualityLimitationReason && report.qualityLimitationReason !== 'none') {
-                        qualityLimitation = true
-                    }
-
-                    //console.debug('tx speed', report.ssrc, report.type, report.mediaType, bitrate)
-                }
-                ratemap.set(report.ssrc, { bytesPrev: bytes, timestampPrev: now })
-            }
-            if (report.type === 'inbound-rtp') {
-                const bytes = report.bytesReceived
-                if (ratemap.has(report.ssrc)) { //report.id may also be a good key
-                    const bytesPrev = ratemap.get(report.ssrc).bytesPrev
-                    const timestampPrev = ratemap.get(report.ssrc).timestampPrev
-                    const bitrate = 8 * (bytes - bytesPrev) / (now - timestampPrev)
-                    rxrate += bitrate
-                    //console.debug('rx speed',report.ssrc, report.type, report.mediaType, bitrate)
-                }
-                ratemap.set(report.ssrc, { bytesPrev: bytes, timestampPrev: now })
-            }
-        })
-
-    } catch (err) {
-        console.error(err)
-    }
-    // we have kbps
-    rxrate = Math.floor(rxrate)
-    txrate = Math.floor(txrate)
-
-    rxrate = rxrate >= 0 ? rxrate : 0
-    txrate = txrate >= 0 ? txrate : 0
-
-    return {
-        rxrate,
-        txrate,
-        qualityLimitation
-    }
-
 }
