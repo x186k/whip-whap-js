@@ -20,10 +20,11 @@ And this is the only place to learn about it for now.
 It's similar to WHIP, but intended for receiving audio/video from WebRTC servers.
 See the example below.
 
-## LICENSE
+## LICENSE AND PULL REQUEST TERMS
 - MIT license
 - Not part of license, but note regarding pull requests and submissions:
-- You agree to the terms in file dco.txt, if you submit a pull request to the project.
+- You agree any submissions or pull requests to this project are granted under the terms of the MIT open source license.
+
 
 ## WHIP Example
 
