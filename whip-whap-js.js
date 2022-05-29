@@ -5,7 +5,6 @@
 
 export { handleIceStateChange };
 export { handleNegotiationNeeded };
-export { helperGetRxTxRate };
 
 // do not export for now
 // export { sendSignalling }

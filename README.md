@@ -95,7 +95,7 @@ WHIP WHAP module.
 * [whip-whap-js](#module_whip-whap-js)
     * [~handleNegotiationNeeded(event, url)](#module_whip-whap-js..handleNegotiationNeeded)
     * [~handleIceStateChange(event)](#module_whip-whap-js..handleIceStateChange)
-    * [~helperGetRxTxRate(pc)](#module_whip-whap-js..helperGetRxTxRate)
+
 
 <a name="module_whip-whap-js..handleNegotiationNeeded"></a>
 
@@ -122,16 +122,3 @@ Event handler for 'iceconnectionstatechange' event.
 | event | <code>Event</code> | 
 
 
-<a name="module_whip-whap-js..helperGetRxTxRate"></a>
-
-### whip-whap-js~helperGetRxTxRate(pc)
-This is a helper function, which is not required
-to make WHIP or WHAP connections.
-It will return the current rx/tx bitrates
-the next time a getStats() event is available.
-
-**Kind**: inner method of [<code>whip-whap-js</code>](#module_whip-whap-js)  
-
-| Param | Type |
-| --- | --- |
-| pc | <code>RTCPeerConnection</code> | 
