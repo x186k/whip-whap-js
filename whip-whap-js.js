@@ -52,7 +52,7 @@ async function handleNegotiationNeeded(ev, url, headers) {
         headers = new Headers()
     }
 
-    while (true) {
+    while (pc.connectionState!=='closed') {
         console.debug('sending N line offer:', ofr.sdp.split(/\r\n|\r|\n/).length)
 
         let opt = {}
