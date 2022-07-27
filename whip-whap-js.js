@@ -3,8 +3,8 @@
  * @module whip-whap-js
  */
 
-export { handleIceStateChange };
-export { handleNegotiationNeeded };
+export { handleIceStateChange }
+export { handleNegotiationNeeded }
 
 // do not export for now
 // export { sendSignalling }
@@ -33,43 +33,48 @@ export { handleNegotiationNeeded };
  */
 
 async function handleNegotiationNeeded(ev, url, headers) {
-  let pc = /** @type {RTCPeerConnection} */ (ev.target);
+  let pc = /** @type {RTCPeerConnection} */ (ev.target)
 
-  console.debug(">onnegotiationneeded");
+  console.debug(">onnegotiationneeded")
 
-  const offer = await pc.createOffer();
-  await pc.setLocalDescription(offer);
-  let ofr = await waitToCompleteIceGathering(pc, true);
-
-  const t0 = performance.now();
+  const offer = await pc.createOffer()
+  await pc.setLocalDescription(offer)
+  let ofr = await waitToCompleteIceGathering(pc, true)
 
   if (typeof headers !== "object") { // is there a better way?
-    headers = new Headers();
+    headers = new Headers()
   }
 
-  while (pc.connectionState !== "closed") {
-    console.debug("sending N line offer:", ofr.sdp.split(/\r\n|\r|\n/).length);
+  if (pc.connectionState === "closed") {
+    return
+  }
 
-    let opt = {};
-    opt.method = "POST";
-    headers.set("Content-Type", "application/sdp");
-    opt.headers = headers;
-    opt.body = ofr.sdp;
-    let resp = { status: -1 };
-    try { // without try/catch, a thrown except from fetch exits our 'thread'
-      resp = await fetch(url, opt);
-    } catch (error) {
-      // not needed console.log(error)
-    }
 
-    if (resp.status === 201) {
-      let anssdp = await resp.text();
-      console.debug("got N line answer:", anssdp.split(/\r\n|\r|\n/).length);
-      await pc.setRemoteDescription(
-        new RTCSessionDescription({ type: "answer", sdp: anssdp }),
-      );
-      return resp.headers.get("Location");
-    }
+  console.debug("sending N line offer:", ofr.sdp.split(/\r\n|\r|\n/).length)
+
+  let opt = {}
+  opt.method = "POST"
+  headers.set("Content-Type", "application/sdp")
+  opt.headers = headers
+  opt.body = ofr.sdp
+  let resp = { status: -1 }
+  try { // without try/catch, a thrown except from fetch exits our 'thread'
+    resp = await fetch(url, opt)
+  } catch (error) {
+    // not needed console.log(error)
+  }
+
+  if (resp.status === 201) {
+    let anssdp = await resp.text()
+    console.debug("got N line answer:", anssdp.split(/\r\n|\r|\n/).length)
+    let sdi = new RTCSessionDescription({ type: "answer", sdp: anssdp })
+    await pc.setRemoteDescription(sdi)
+
+    console.debug('location header', resp.headers.get("Location"))
+
+    //happy path
+    return
+  }
 
   //failed!
   console.log('setting timeout')
@@ -79,6 +84,8 @@ async function handleNegotiationNeeded(ev, url, headers) {
     pc.restartIce()
   }, 2000)
 }
+
+
 
 /**
  * Event handler for 'iceconnectionstatechange' event.
@@ -90,9 +97,9 @@ async function handleNegotiationNeeded(ev, url, headers) {
  * // pc.addEventListener('iceconnectionstatechange', whipwhap.handleIceStateChange)
  */
 function handleIceStateChange(event) {
-  let pc = /** @type {RTCPeerConnection} */ (event.target);
+  let pc = /** @type {RTCPeerConnection} */ (event.target)
 
-  console.debug(">iceconnectionstatechange", pc.iceConnectionState);
+  console.debug(">iceconnectionstatechange", pc.iceConnectionState)
 
   // 12 10 21
   // I am not really sure of the ideal iceConnectionStates to trigger
@@ -109,8 +116,8 @@ function handleIceStateChange(event) {
     pc.iceConnectionState === "disconnected" ||
     pc.iceConnectionState === "closed"
   ) { //'failed' is also an option
-    console.debug("*** restarting ice");
-    pc.restartIce();
+    console.debug("*** restarting ice")
+    pc.restartIce()
   }
 }
 
@@ -124,22 +131,22 @@ function handleIceStateChange(event) {
  * @return {Promise<RTCSessionDescription>}
  */
 async function waitToCompleteIceGathering(pc, logPerformance) {
-  const t0 = performance.now();
+  const t0 = performance.now()
 
   let p = new Promise((resolve) => {
     setTimeout(function () {
-      resolve(pc.localDescription);
-    }, 250);
+      resolve(pc.localDescription)
+    }, 250)
     pc.onicegatheringstatechange = (ev) =>
-      pc.iceGatheringState === "complete" && resolve(pc.localDescription);
-  });
+      pc.iceGatheringState === "complete" && resolve(pc.localDescription)
+  })
 
   if (logPerformance === true) {
-    await p;
+    await p
     console.debug(
       "ice gather blocked for N ms:",
       Math.ceil(performance.now() - t0),
-    );
+    )
   }
-  return p;
+  return p
 }
