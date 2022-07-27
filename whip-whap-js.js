@@ -71,16 +71,13 @@ async function handleNegotiationNeeded(ev, url, headers) {
       return resp.headers.get("Location");
     }
 
-    let numsec = (performance.now() - t0) / 1000;
-    let xdetail = { status: resp.status, numsec: numsec };
-    const event = new CustomEvent("downtime-msg", { detail: xdetail });
-    pc.dispatchEvent(event);
-    // we could use the JS method setTimeout()
-    // but it would mean we may need to re-factor these methods into a class
-    // in order to cancel the Timeout directly.
-    // although, we could stop calling setTimeout() on pc.state==='closed'
-    await (new Promise((r) => setTimeout(r, 2000)));
-  }
+  //failed!
+  console.log('setting timeout')
+  setTimeout(() => {
+    console.log('timeout/rollback')
+    pc.setLocalDescription({ type: 'rollback' })
+    pc.restartIce()
+  }, 2000)
 }
 
 /**
